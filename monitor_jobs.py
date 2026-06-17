@@ -81,10 +81,6 @@ def get_section_blocks(markdown, include_sections, exclude_sections):
 
 
 def extract_markdown_table_rows(markdown):
-    """
-    Pulls likely job rows from markdown tables.
-    Most job-list repos use README tables.
-    """
     rows = []
 
     for line in markdown.splitlines():
@@ -93,17 +89,23 @@ def extract_markdown_table_rows(markdown):
         if not line.startswith("|"):
             continue
 
-        if "---" in line:
+        if re.match(r"^\|\s*-+", line):
             continue
 
         cells = [normalize(cell) for cell in line.strip("|").split("|")]
 
-        if len(cells) < 3:
+        if len(cells) < 5:
             continue
 
         row_text = " | ".join(cells)
 
-        if "company" in row_text.lower() and "role" in row_text.lower():
+        row_lower = row_text.lower()
+
+        if (
+            "company" in row_lower
+            and "position" in row_lower
+            and "posting" in row_lower
+        ):
             continue
 
         rows.append(row_text)
@@ -183,12 +185,22 @@ def main():
             )
 
             rows = extract_markdown_table_rows(relevant_markdown)
+            
+            # print(f"\nSOURCE: {source['name']}") # DEBUGGING
+            # print(f"URL: {source['url']}")
+            # print(f"ROWS EXTRACTED BEFORE FILTERS: {len(rows)}")
+
+            # for row in rows:
+            #     if "nvidia" in row.lower():
+            #         print("FOUND NVIDIA ROW:", row)
 
         else:
             raise ValueError(f"Unsupported source type: {source['type']}")
 
         for row in rows:
             if not passes_filters(row, filters):
+                # if "nvidia" in row.lower():
+                #     print("NVIDIA FILTERED OUT:", row)
                 continue
 
             unique_id = job_id(source["name"], row)
@@ -202,6 +214,11 @@ def main():
 
     if new_jobs:
         send_email(config["email"]["to"], new_jobs)
+    # if new_jobs: # DEBUGGING
+    #     print(f"\nNEW JOBS FOUND: {len(new_jobs)}")
+    # for job in new_jobs:
+    #     print(f"- [{job['source']}] {job['row']}")
+
 
     save_seen(seen)
 
