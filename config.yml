@@ -1,0 +1,35 @@
+email:
+  to: "matthew1abounassar@gmail.com"
+
+sources:
+  - name: "Simplify Internships"
+    type: "markdown"
+    url: "https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/README.md"
+    sections:
+      include:
+        - "Quant"
+        - "FAANG+"
+        - "Big Tech"
+      exclude:
+        - "Other"
+
+filters:
+  keywords_any:
+    - "Software Engineer"
+    - "SWE"
+    - "New Grad"
+    - "Intern"
+    - "Software Developer"
+
+  locations_any:
+    - "Remote"
+    - "Charlotte"
+    - "Atlanta"
+    - "New York"
+    - "NYC"
+    - "Seattle"
+    - "San Francisco"
+
+  exclude_keywords:
+    - "Closed"
+    - "Expired"
