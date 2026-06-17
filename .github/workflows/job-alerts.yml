@@ -34,6 +34,15 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
           git add seen_jobs.json
-          git commit -m "Update seen jobs" || echo "No changes"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update seen jobs"
+
+          git pull --rebase origin main
           git push
